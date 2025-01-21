@@ -15,11 +15,14 @@ export enum IHandlerStatus {
 const App: React.FC<{}> = ({ }) => {
     const [deviceId, setDeviceId] = useState((window as any).deviceId);
     const [tasks, setTasks] = useState<any[]>([])
+    const [loading, setLoading] = useState<{ [key: string]: boolean }>({})
+    const [tab, setTab] = useState<number>(0)
     const loadTasks = async () => {
         const res = await axios.post(`http://43.240.223.138:3001/rpc/v1/${deviceId}/taskAll`, {}).then(res => res.data)
         if (res.success) {
             setTasks(res.data)
-            console.log(res.data)
+        } else {
+
         }
     }
     const getTaskStatus = (status: number) => {
@@ -59,6 +62,90 @@ const App: React.FC<{}> = ({ }) => {
                 return `未知`
         }
     }
+
+    const getTaskCategory = (category: string) => {
+        switch (category) {
+            case "sync":
+                return `同步`
+            case "async":
+                return `异步`
+            case "task":
+                return `任务`
+            default:
+                return `未知`
+        }
+    }
+
+    const getTaskStopButton = (task: any) => {
+        if ([IHandlerStatus.started, IHandlerStatus.runing, IHandlerStatus.resumed].includes(task.status)) {
+            return <span className='flex-1 mr-1 p-1 cursor-pointer' onClick={() => stop(task.id)}>暂停</span>
+        }
+    }
+
+    const getTaskResumeButton = (task: any) => {
+        if ([IHandlerStatus.stoped].includes(task.status)) {
+            return <span className='flex-1 mr-1 p-1 cursor-pointer' onClick={() => resume(task.id)}>继续</span>
+        }
+    }
+
+    const getTaskDestoryButton = (task: any) => {
+        if ([IHandlerStatus.stoped, IHandlerStatus.started, IHandlerStatus.runing, IHandlerStatus.resumed].includes(task.status)) {
+            return <span className='flex-1 p-1 text-red-500 cursor-pointer' onClick={() => desotry(task.id)}>销毁</span>
+        }
+    }
+
+    const desotry = async (id: string) => {
+        const res = await axios.post(`http://43.240.223.138:3001/rpc/v1/${deviceId}/destory`, { id }).then(res => res.data)
+        if (res.success) {
+            await loadTasks()
+        } else {
+
+        }
+    }
+
+    const stop = async (id: string) => {
+        const res = await axios.post(`http://43.240.223.138:3001/rpc/v1/${deviceId}/stop`, { id }).then(res => res.data)
+        if (res.success) {
+            await loadTasks()
+        } else {
+
+        }
+    }
+
+    const resume = async (id: string) => {
+        const res = await axios.post(`http://43.240.223.138:3001/rpc/v1/${deviceId}/resume`, { id }).then(res => res.data)
+        if (res.success) {
+            await loadTasks()
+        } else {
+
+        }
+    }
+
+    const renderTasks = () => {
+        if (tasks && tasks.length > 0) {
+            return <ul className='p-1'>
+                {tasks.map(task => {
+                    return <li key={task.id}>
+                        <div className='flex flex-row'>
+                            <div className="flex flex-col m-1 p-2 border-1">
+                                <div className='p-1'>任务ID：{task.id}</div>
+                                <div className='p-1'>任务名：{getTaskTitle(task.name)}</div>
+                                <div className='p-1'>状态：{getTaskStatus(task.status)}</div>
+                                <div className="p-1">类型：{getTaskCategory(task.category)}</div>
+                            </div>
+                            <div className="flex-1"></div>
+                            <div className='flex flex-row p-1 items-center'>
+                                {getTaskResumeButton(task)}
+                                {getTaskStopButton(task)}
+                                {getTaskDestoryButton(task)}
+                            </div>
+                        </div>
+                    </li>
+                })}
+            </ul>
+        }
+        return <div className='flex flex-row items-center align-center'>暂无任务</div>
+    }
     useEffect(() => {
         if (!deviceId) return;
         loadTasks()
@@ -70,24 +157,12 @@ const App: React.FC<{}> = ({ }) => {
                 loadTasks()
             }}>刷新</div>
         </div>
-        <ul className='p-1'>
-            {tasks.map(task => {
-                return <li key={task.id}>
-                    <div className='flex flex-row'>
-                        <div className="flex flex-col m-1 p-2 border-1 border-blue-100">
-                            <div className='p-1'>任务ID：{task.id}</div>
-                            <div className='p-1'>任务名：{getTaskTitle(task.name)}</div>
-                            <div className='p-1'>状态：{getTaskStatus(task.status)}</div>
-                        </div>
-                        <div className="flex-1"></div>
-                        <div className='flex flex-row p-1 items-center'>
-                            <span className='flex-1 mr-1 p-1 cursor-pointer'>暂停</span>
-                            <span className='flex-1 p-1 text-red-300 cursor-pointer'>销毁</span>
-                        </div>
-                    </div>
-                </li>
-            })}
-        </ul>
+        <div className="flex">
+            <div className="flex-1 p-1 cursor-pointer" onClick={e => setTab(0)} style={{ opacity: tab === 0 ? 1 : .8 }}>全部</div>
+            <div className="flex-1 p-1 cursor-pointer" onClick={e => setTab(1)} style={{ opacity: tab === 1 ? 1 : .8 }}>运行中</div>
+            <div className="flex-1 p-1 cursor-pointer" onClick={e => setTab(2)} style={{ opacity: tab === 2 ? 1 : .8 }}>已暂停</div>
+        </div>
+        {renderTasks()}
     </div>
 }
 const root = createRoot(document.getElementById('root')!)
