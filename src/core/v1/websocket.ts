@@ -51,8 +51,12 @@ export class WebSocketVscode extends WebSocket implements OnInit, OnDestory {
         const connectDeviceId = useToken(CONNECT_DEVICE_ID)
         axios.post(`http://43.240.223.138:3001/rpc/v1/${connectDeviceId.get()}/setVsCodeId`, {
             uuid: uuid
+        }, {
+            timeout: 3000
         }).then(res => res.data).then(res => {
             console.log(`from ${connectDeviceId.get()} put ${uuid}`, res)
+        }).catch(e => {
+            console.log(`日志同步开始失败`)
         });
     }
 

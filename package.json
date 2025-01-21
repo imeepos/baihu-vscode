@@ -108,7 +108,7 @@
     "check-types": "tsc --noEmit",
     "lint": "eslint src",
     "test": "vscode-test",
-    "build": "node build.js",
+    "build": "node build.js && pnpm run build:css",
     "build:css": "tailwindcss -c tailwind.config.js -o build/style.css"
   },
   "devDependencies": {

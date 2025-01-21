@@ -30,6 +30,7 @@ export class ScriptWebView extends VscodeWebView {
         const cssUrl = readFileSync(
             join(ctx.extensionPath, 'build', 'style.css'), 'utf-8'
         );
+        const deviceId = useToken(CONNECT_DEVICE_ID)
         panel.webview.html = `<!DOCTYPE html>
                                 <html lang="en">
                                 <head>
@@ -37,6 +38,7 @@ export class ScriptWebView extends VscodeWebView {
                                     <meta name="viewport" content="width=device-width, initial-scale=1.0">
                                     <title>${this.title}</title>
                                     <style>${cssUrl}</style>
+                                    <script>window.deviceId="${deviceId.get()}"</script>
                                 </head>
                                 <body>
                                     <div id="root"></div>

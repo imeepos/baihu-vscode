@@ -4,6 +4,7 @@ import { writeFileSync } from "fs";
 import { join } from "path";
 import { useInjector } from "../factory";
 import { ROOT } from "../tokens";
+import { Uri, workspace } from "vscode";
 export class PutLogHandler extends CoreHandler {
     constructor(private readonly __payload: ApiPayload) {
         super();
@@ -12,13 +13,22 @@ export class PutLogHandler extends CoreHandler {
         return this.__payload;
     }
     start(): Promise<void> | void {
-        const content = this.payload.data?.content
-        if (content) {
-            const root = useInjector().get(ROOT)
-            const logFile = join(root, `log.txt`)
-            writeFileSync(logFile, content)
+        try {
+            const content = this.payload.data?.content
+            if (content) {
+                const workspaceFolders = workspace.workspaceFolders;
+                if (workspaceFolders && workspaceFolders.length > 0) {
+                    const workspaceFolder = workspaceFolders[0];
+                    if (workspaceFolder) {
+                        const root = workspaceFolder.uri
+                        workspace.fs.writeFile(Uri.joinPath(root, 'log.txt'), Buffer.from(content))
+                    }
+                }
+            }
+            this.response({ success: true })
+        } catch (e) {
+            this.response({ success: false, message: `${(e as any).toString()}` })
         }
-        this.response({ success: true })
     }
     stop(): Promise<void> | void {
     }
