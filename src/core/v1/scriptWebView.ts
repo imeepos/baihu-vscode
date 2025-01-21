@@ -4,6 +4,7 @@ import { useInjector } from "../factory";
 import { join } from "path";
 import { useToken } from "../useToken";
 import { CONNECT_DEVICE_ID, DEVICE_ID, Storage } from "../tokens";
+import { readFileSync } from "fs";
 export class ScriptWebView extends VscodeWebView {
     get viewType(): string {
         return `ScriptWebView`
@@ -18,14 +19,30 @@ export class ScriptWebView extends VscodeWebView {
         const ctx = useInjector().get(VSCODE_EXTENSION_CONTEXT);
         return {
             enableScripts: true,
-            localResourceRoots: [
-                Uri.parse(join(ctx.extensionPath, 'public/docs/'))
-            ]
+            localResourceRoots: []
         }
     }
     async setContent(panel: WebviewPanel) {
-        const deviceId = useToken(CONNECT_DEVICE_ID, "cce281c8f5dfa637");
-        panel.webview.html = ``;
+        const ctx = useInjector().get(VSCODE_EXTENSION_CONTEXT);
+        const jsUrl = readFileSync(
+            join(ctx.extensionPath, 'build', 'script.js'), 'utf-8'
+        );
+        const cssUrl = readFileSync(
+            join(ctx.extensionPath, 'build', 'style.css'), 'utf-8'
+        );
+        panel.webview.html = `<!DOCTYPE html>
+                                <html lang="en">
+                                <head>
+                                    <meta charset="UTF-8">
+                                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                                    <title>${this.title}</title>
+                                    <style>${cssUrl}</style>
+                                </head>
+                                <body>
+                                    <div id="root"></div>
+                                    <script>${jsUrl}</script>
+                                </body>
+                                </html>`
     }
     onDidReceiveMessage(msg: any): void {
         console.log(msg)

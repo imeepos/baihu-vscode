@@ -85,7 +85,7 @@
   },
   "scripts": {
     "vscode:prepublish": "pnpm run package",
-    "compile": "pnpm run check-types && pnpm run lint && node esbuild.js && node tools/buildDocs.js",
+    "compile": "pnpm run check-types && pnpm run lint && node esbuild.js",
     "watch": "npm-run-all -p watch:*",
     "watch:esbuild": "node esbuild.js --watch",
     "watch:tsc": "tsc --noEmit --watch --project tsconfig.json",
@@ -96,7 +96,8 @@
     "check-types": "tsc --noEmit",
     "lint": "eslint src",
     "test": "vscode-test",
-    "build:docs": "node buildDocs.js && tailwindcss -i src/pages/docs/docs.css -o ./build/docs.css"
+    "build": "node build.js",
+    "build:css": "tailwindcss -c tailwind.config.js -o build/style.css"
   },
   "devDependencies": {
     "@types/mocha": "^10.0.10",

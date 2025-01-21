@@ -18,9 +18,7 @@ export class DocsWebView extends VscodeWebView {
         const ctx = useInjector().get(VSCODE_EXTENSION_CONTEXT);
         return {
             enableScripts: true,
-            localResourceRoots: [
-                Uri.parse(join(ctx.extensionPath, 'public/docs/'))
-            ]
+            localResourceRoots: []
         }
     }
     async setContent(panel: WebviewPanel) {
@@ -29,7 +27,7 @@ export class DocsWebView extends VscodeWebView {
             join(ctx.extensionPath, 'build', 'docs.js'), 'utf-8'
         );
         const cssUrl = readFileSync(
-            join(ctx.extensionPath, 'build', 'docs.css'), 'utf-8'
+            join(ctx.extensionPath, 'build', 'style.css'), 'utf-8'
         );
         panel.webview.html = `<!DOCTYPE html>
 <html lang="en">

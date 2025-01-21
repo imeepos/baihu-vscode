@@ -1,7 +1,8 @@
-import { ViewColumn, WebviewPanelOptions, WebviewOptions, WebviewPanel } from "vscode";
-import { VscodeWebView } from "../vscode";
-import { useToken } from "../useToken";
-import { CONNECT_DEVICE_ID, DEVICE_ID } from "../tokens";
+import { ViewColumn, WebviewPanelOptions, WebviewOptions, WebviewPanel, Uri } from "vscode";
+import { VSCODE_EXTENSION_CONTEXT, VscodeWebView } from "../vscode";
+import { useInjector } from "../factory";
+import { join } from "path";
+import { readFileSync } from "fs";
 
 
 export class AppManagerWebView extends VscodeWebView {
@@ -15,33 +16,33 @@ export class AppManagerWebView extends VscodeWebView {
         return ViewColumn.Two;
     }
     get options(): WebviewPanelOptions & WebviewOptions {
-        return {}
+        const ctx = useInjector().get(VSCODE_EXTENSION_CONTEXT);
+        return {
+            enableScripts: true,
+            localResourceRoots: []
+        }
     }
     async setContent(panel: WebviewPanel) {
-        const deviceId = useToken(CONNECT_DEVICE_ID, "cce281c8f5dfa637");
-        console.log(`device id is `, deviceId.get())
+        const ctx = useInjector().get(VSCODE_EXTENSION_CONTEXT);
+        const jsUrl = readFileSync(
+            join(ctx.extensionPath, 'build', 'app.js'), 'utf-8'
+        );
+        const cssUrl = readFileSync(
+            join(ctx.extensionPath, 'build', 'style.css'), 'utf-8'
+        );
         panel.webview.html = `<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Page</title>
-</head>
-<body>
-    <h1>Hello, VSCode!</h1>
-    <button id="myButton">Click Me</button>
-
-    <script>
-        const vscode = acquireVsCodeApi();
-        document.getElementById('myButton').addEventListener('click', () => {
-            vscode.postMessage({
-                command: 'alert',
-                text: 'Button was clicked!'
-            });
-        });
-    </script>
-</body>
-</html>`
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>${this.title}</title>
+            <style>${cssUrl}</style>
+        </head>
+        <body>
+            <div id="root"></div>
+            <script>${jsUrl}</script>
+        </body>
+        </html>`
     }
     onDidReceiveMessage(msg: any): void {
         console.log(msg)
