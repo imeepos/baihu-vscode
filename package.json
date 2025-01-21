@@ -12,16 +12,80 @@
   "activationEvents": [],
   "main": "./dist/extension.js",
   "contributes": {
+    "configuration": {
+      "type": "object",
+      "title": "白虎开发助手",
+      "properties": {
+        "baihu.DEVICE_ID": {
+          "type": "string",
+          "default": "",
+          "description": "手机端设备ID"
+        }
+      }
+    },
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "baihu",
+          "title": "白虎开发助手",
+          "icon": "resources/icon.svg"
+        }
+      ]
+    },
+    "views": {
+      "baihu": [
+        {
+          "id": "baihu",
+          "name": "baihu"
+        }
+      ]
+    },
     "commands": [
       {
         "command": "baihu.helloWorld",
-        "title": "Hello World"
+        "title": "baihu:连接设备"
+      },
+      {
+        "command": "baihu.DocsWebView",
+        "title": "baihu:开发文档"
+      },
+      {
+        "command": "baihu.AstWebView",
+        "title": "baihu:界面分析"
+      },
+      {
+        "command": "baihu.TakeScreenWebView",
+        "title": "baihu:截屏分析"
+      },
+      {
+        "command": "baihu.OcrWebView",
+        "title": "baihu:OCR分析"
+      },
+      {
+        "command": "baihu.AppManagerWebView",
+        "title": "baihu:应用管理"
+      },
+      {
+        "command": "baihu.ScriptWebView",
+        "title": "baihu:脚本管理"
+      },
+      {
+        "command": "baihu.LogWebView",
+        "title": "baihu:运行日志"
       }
-    ]
+    ],
+    "menus": {
+      "view/item/context": [
+        {
+          "command": "baihu.helloWorld",
+          "when": "view == baihu && viewItem == baihu"
+        }
+      ]
+    }
   },
   "scripts": {
     "vscode:prepublish": "pnpm run package",
-    "compile": "pnpm run check-types && pnpm run lint && node esbuild.js",
+    "compile": "pnpm run check-types && pnpm run lint && node esbuild.js && node tools/buildDocs.js",
     "watch": "npm-run-all -p watch:*",
     "watch:esbuild": "node esbuild.js --watch",
     "watch:tsc": "tsc --noEmit --watch --project tsconfig.json",
@@ -31,19 +95,36 @@
     "pretest": "pnpm run compile-tests && pnpm run compile && pnpm run lint",
     "check-types": "tsc --noEmit",
     "lint": "eslint src",
-    "test": "vscode-test"
+    "test": "vscode-test",
+    "build:docs": "node buildDocs.js && tailwindcss -i src/pages/docs/docs.css -o ./build/docs.css"
   },
   "devDependencies": {
-    "@types/vscode": "^1.96.0",
     "@types/mocha": "^10.0.10",
     "@types/node": "20.x",
+    "@types/vscode": "^1.96.0",
+    "@types/react": "^19.0.7",
+    "@types/react-dom": "^19.0.3",
+    "@types/ws": "^8.5.13",
     "@typescript-eslint/eslint-plugin": "^8.17.0",
     "@typescript-eslint/parser": "^8.17.0",
-    "eslint": "^9.16.0",
+    "@vscode/test-cli": "^0.0.10",
+    "@vscode/test-electron": "^2.4.1",
     "esbuild": "^0.24.0",
+    "eslint": "^9.16.0",
     "npm-run-all": "^4.1.5",
     "typescript": "^5.7.2",
-    "@vscode/test-cli": "^0.0.10",
-    "@vscode/test-electron": "^2.4.1"
+    "autoprefixer": "^10.4.20",
+    "axios": "^1.7.9",
+    "esbuild-plugin-postcss": "^0.2.1",
+    "esbuild-plugin-react18": "^0.2.6",
+    "esbuild-sass-plugin": "^3.3.1",
+    "esbuild-scss-modules-plugin": "^1.1.1",
+    "sass": "^1.83.4",
+    "tailwindcss": "^3.4.17"
+  },
+  "dependencies": {
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "ws": "^8.18.0"
   }
 }
