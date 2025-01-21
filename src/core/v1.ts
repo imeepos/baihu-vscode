@@ -3,6 +3,8 @@ import {
     ROOT,
     SET_UP_TOKEN,
     Storage,
+    VSCODE_DEBUG_CONSOLE,
+    VSCODE_TERMINAL,
 } from "./tokens";
 import { createFactory } from "./factory";
 import { WebSocket } from "./ws";
@@ -17,6 +19,9 @@ import { LogWebView } from "./v1/logWebView";
 import { ScriptWebView } from "./v1/scriptWebView";
 import { OcrWebView } from "./v1/ocrWebView";
 import { TakeScreenWebView } from "./v1/takeScreenWebView";
+import { ON_WS_MESSAGE } from "./api";
+import { PutLogFactory } from "./v1/PutLogFactory";
+import { debug, window } from "vscode";
 
 export const platformV1 = createFactory([
     {
@@ -63,9 +68,26 @@ export const platformV1 = createFactory([
         useClass: TakeScreenWebView
     },
     {
+        provide: ON_WS_MESSAGE,
+        multi: true,
+        useClass: PutLogFactory
+    },
+    {
         provide: ROOT,
-        useFactory: (injector: Injector)=>{
+        useFactory: (injector: Injector) => {
             return injector.get(VSCODE_EXTENSION_CONTEXT).extensionPath
+        }
+    },
+    {
+        provide: VSCODE_TERMINAL,
+        useFactory: () => {
+            return window.createTerminal('baihu')
+        }
+    },
+    {
+        provide: VSCODE_DEBUG_CONSOLE,
+        useFactory: () => {
+            return debug.activeDebugConsole
         }
     },
     {

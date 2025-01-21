@@ -11,6 +11,7 @@
   ],
   "activationEvents": [],
   "main": "./dist/extension.js",
+  "enabledApiProposals": ["contribEditorContentMenu"],
   "contributes": {
     "configuration": {
       "type": "object",
@@ -72,9 +73,20 @@
       {
         "command": "baihu.LogWebView",
         "title": "baihu:运行日志"
+      },
+      {
+        "command": "baihu.runCode",
+        "title": "baihu:运行"
       }
     ],
     "menus": {
+      "explorer/context": [
+        {
+          "command": "baihu.runCode",
+          "group": "z_commands",
+          "when": "resourceScheme == file"
+        }
+      ],
       "view/item/context": [
         {
           "command": "baihu.helloWorld",

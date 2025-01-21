@@ -9,7 +9,6 @@ export abstract class WebSocket {
     abstract destory(): void;
     abstract toBuffer(str: string): any;
     _onMessage(payload: ApiPayload) {
-        console.log(payload)
         try {
             const { action } = payload;
             const handler = createHandler(action, payload);

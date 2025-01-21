@@ -1,4 +1,5 @@
 import { Injector, StringToken } from "./types";
+import { DebugConsole, Terminal, debug } from 'vscode'
 export abstract class Storage {
     abstract get<T>(key: StringToken<T>): T | undefined;
     abstract put<T>(key: StringToken<T>, val: T): void;
@@ -20,6 +21,11 @@ export const DEVICE_ID: StringToken<string> = `DEVICE_ID`;
 export const CONNECT_DEVICE_ID: StringToken<string> = `CONNECT_DEVICE_ID`;
 export const WEB_SOCKET_URL: StringToken<string> = `WEB_SOCKET_URL`;
 export const ROOT: StringToken<string> = `ROOT`
+
+
+export const VSCODE_TERMINAL: StringToken<Terminal> = `VSCODE_TERMINAL`
+export const VSCODE_DEBUG_CONSOLE: StringToken<DebugConsole> = `VSCODE_TERMINAL`
+
 export abstract class Auto {
     root: any;
     abstract waitFor(): void;

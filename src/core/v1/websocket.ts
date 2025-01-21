@@ -1,10 +1,12 @@
 import { OnDestory, OnInit } from "../types";
-import { DEVICE_ID, WEB_SOCKET_URL } from "../tokens";
+import { CONNECT_DEVICE_ID, DEVICE_ID, WEB_SOCKET_URL } from "../tokens";
 import { WebSocket } from "../ws";
 import { useToken } from "../useToken";
 import { WebSocket as WsWebSocket } from 'ws'
 import { useInjector } from "../factory";
 import { VSCODE_EXTENSION_CONTEXT } from "../vscode";
+import { randomUUID } from "crypto";
+import axios from "axios";
 export class WebSocketVscode extends WebSocket implements OnInit, OnDestory {
     private ws: WsWebSocket | null = null;
     private isDestoried: boolean = false;
@@ -40,15 +42,29 @@ export class WebSocketVscode extends WebSocket implements OnInit, OnDestory {
 
     start(): void {
         this.onInit();
+        const deviceId = useToken(DEVICE_ID);
+        let uuid = deviceId.get()
+        if (!uuid) {
+            uuid = randomUUID()
+            deviceId.put(uuid);
+        }
+        const connectDeviceId = useToken(CONNECT_DEVICE_ID)
+        axios.post(`http://43.240.223.138:3001/rpc/v1/${connectDeviceId.get()}/setVsCodeId`, {
+            uuid: uuid
+        }).then(res => res.data).then(res => {
+            console.log(`from ${connectDeviceId.get()} put ${uuid}`, res)
+        });
     }
 
     onInit() {
-        const deviceId = useToken(DEVICE_ID, "cce281c8f5dfa637");
+        const deviceId = useToken(DEVICE_ID);
+        let uuid = deviceId.get()
+        if (!uuid) {
+            uuid = randomUUID()
+            deviceId.put(uuid);
+        }
         const wsUrl = useToken(WEB_SOCKET_URL, `ws://43.240.223.138:3001/ws`);
-        const ctx = useInjector().get(VSCODE_EXTENSION_CONTEXT)
-        console.log(ctx.globalState.keys())
-        console.log(`current uuid is ${deviceId.get()} , ws url ${wsUrl.get()}`);
-        this.ws = new WsWebSocket(`${wsUrl.get()}?uuid=${deviceId.get()}&name=vscode`);
+        this.ws = new WsWebSocket(`${wsUrl.get()}?uuid=${uuid}&name=vscode`);
         this.ws.on('message', (data, isBinary) => {
             this.onMessage(data.toString('utf-8'), this.ws)
         })
