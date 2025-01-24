@@ -78,20 +78,36 @@ const App: React.FC<{}> = ({ }) => {
 
     const getTaskStopButton = (task: any) => {
         if ([IHandlerStatus.started, IHandlerStatus.runing, IHandlerStatus.resumed].includes(task.status)) {
-            return <span className='flex-1 mr-1 p-1 cursor-pointer' onClick={() => stop(task.id)}>暂停</span>
+            return <span className='flex-1 mr-1 p-1 cursor-pointer text-center' onClick={() => stop(task.id)}>暂停</span>
         }
     }
 
     const getTaskResumeButton = (task: any) => {
         if ([IHandlerStatus.stoped].includes(task.status)) {
-            return <span className='flex-1 mr-1 p-1 cursor-pointer' onClick={() => resume(task.id)}>继续</span>
+            return <span className='flex-1 mr-1 p-1 cursor-pointer text-center' onClick={() => resume(task.id)}>继续</span>
         }
     }
 
     const getTaskDestoryButton = (task: any) => {
         if ([IHandlerStatus.stoped, IHandlerStatus.started, IHandlerStatus.runing, IHandlerStatus.resumed].includes(task.status)) {
-            return <span className='flex-1 p-1 text-red-500 cursor-pointer' onClick={() => desotry(task.id)}>销毁</span>
+            return <span className='flex-1 p-1 text-red-200 cursor-pointer text-center' onClick={() => desotry(task.id)}>销毁</span>
         }
+    }
+
+    const getTaskDetailButton = (task: any) => {
+        return <span className='flex-1 p-1 cursor-pointer text-center' onClick={() => detail(task)}>详情</span>
+    }
+
+    const getTaskCloseButton = (task: any)=>{
+        return <span className='flex-1 p-1 cursor-pointer text-center' onClick={() => setShowDetail(false)}>关闭</span>
+    }
+
+
+    const [showDetail, setShowDetail] = useState<boolean>(false)
+    const [currentTask, setCurrentTask] = useState<any>()
+    const detail = (task: any) => {
+        setShowDetail(true);
+        setCurrentTask(task);
     }
 
     const desotry = async (id: string) => {
@@ -123,10 +139,10 @@ const App: React.FC<{}> = ({ }) => {
 
     const renderTasks = () => {
         if (tasks && tasks.length > 0) {
-            return <ul className='p-1'>
+            return <ul className='p-1 flex flex-col'>
                 {tasks.map(task => {
-                    return <li key={task.id}>
-                        <div className='flex flex-row'>
+                    return <li key={task.id} className='flex-1 m-1'>
+                        <div className='flex flex-row bg-blue-600 text-white p-4 rounded-lg'>
                             <div className="flex flex-col m-1 p-2 border-1">
                                 <div className='p-1'>任务ID：{task.id}</div>
                                 <div className='p-1'>任务名：{getTaskTitle(task.name)}</div>
@@ -135,6 +151,7 @@ const App: React.FC<{}> = ({ }) => {
                             </div>
                             <div className="flex-1"></div>
                             <div className='flex flex-row p-1 items-center'>
+                                {getTaskDetailButton(task)}
                                 {getTaskResumeButton(task)}
                                 {getTaskStopButton(task)}
                                 {getTaskDestoryButton(task)}
@@ -144,26 +161,58 @@ const App: React.FC<{}> = ({ }) => {
                 })}
             </ul>
         }
-        return <div className='flex flex-row items-center align-center'>暂无任务</div>
+        return <div className='flex flex-row items-center justify-center text-center p-2 text-gray-400 mt-5'>暂无任务</div>
+    }
+
+    function renderDetail() {
+        return <div className='p-4'>
+            <div className="flex flex-row">
+                <div className="flex-1"></div>
+                <div className='p-1 text-blue-500 cursor-pointer' onClick={e => {
+                    setShowDetail(false)
+                }}>关闭</div>
+            </div>
+            <div className="flex flex-col">
+                <div className='flex flex-col bg-blue-600 text-white p-4 rounded-lg'>
+                    <div className="flex flex-col m-1 p-2 border-1">
+                        <div className='p-1'>任务ID：{currentTask.id}</div>
+                        <div className='p-1'>任务名：{getTaskTitle(currentTask.name)}</div>
+                        <div className='p-1'>状态：{getTaskStatus(currentTask.status)}</div>
+                        <div className="p-1">类型：{getTaskCategory(currentTask.category)}</div>
+                        <div className="p-1">参数: {JSON.stringify(currentTask.payload.data, null, 2)}</div>
+                    </div>
+                    <div className='flex flex-row p-1 items-center'>
+                        {getTaskCloseButton(currentTask)}
+                        {getTaskResumeButton(currentTask)}
+                        {getTaskStopButton(currentTask)}
+                        {getTaskDestoryButton(currentTask)}
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+    function renderTaskList() {
+        return <div className="p-4">
+            <div className="flex flex-row">
+                <div className="flex-1"></div>
+                <div className='p-1 text-blue-500 cursor-pointer' onClick={e => {
+                    loadTasks()
+                }}>刷新</div>
+            </div>
+            <div className="flex">
+                <div className="flex-1 p-1 cursor-pointer" onClick={e => setTab(0)} style={{ opacity: tab === 0 ? 1 : .8 }}>全部</div>
+                <div className="flex-1 p-1 cursor-pointer" onClick={e => setTab(1)} style={{ opacity: tab === 1 ? 1 : .8 }}>运行中</div>
+                <div className="flex-1 p-1 cursor-pointer" onClick={e => setTab(2)} style={{ opacity: tab === 2 ? 1 : .8 }}>已暂停</div>
+            </div>
+            {renderTasks()}
+        </div>
     }
     useEffect(() => {
         if (!deviceId) return;
         loadTasks()
     }, [deviceId])
-    return <div className="p-4">
-        <div className="flex flex-row">
-            <div className="flex-1"></div>
-            <div className='p-1 text-blue-500 cursor-pointer' onClick={e => {
-                loadTasks()
-            }}>刷新</div>
-        </div>
-        <div className="flex">
-            <div className="flex-1 p-1 cursor-pointer" onClick={e => setTab(0)} style={{ opacity: tab === 0 ? 1 : .8 }}>全部</div>
-            <div className="flex-1 p-1 cursor-pointer" onClick={e => setTab(1)} style={{ opacity: tab === 1 ? 1 : .8 }}>运行中</div>
-            <div className="flex-1 p-1 cursor-pointer" onClick={e => setTab(2)} style={{ opacity: tab === 2 ? 1 : .8 }}>已暂停</div>
-        </div>
-        {renderTasks()}
-    </div>
+    return showDetail ? renderDetail() : renderTaskList();
 }
 const root = createRoot(document.getElementById('root')!)
 root.render(<App />)

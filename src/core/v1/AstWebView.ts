@@ -1,4 +1,4 @@
-import { ViewColumn, WebviewPanelOptions, WebviewOptions, Uri, WebviewPanel } from "vscode";
+import { ViewColumn, WebviewPanelOptions, WebviewOptions, Uri, WebviewPanel, window, env } from "vscode";
 import { VSCODE_EXTENSION_CONTEXT, VscodeWebView } from "../vscode";
 import { useInjector } from "../factory";
 import { join } from "path";
@@ -26,11 +26,12 @@ export class AstWebView extends VscodeWebView {
     async setContent(panel: WebviewPanel) {
         const ctx = useInjector().get(VSCODE_EXTENSION_CONTEXT);
         const jsUrl = readFileSync(
-            join(ctx.extensionPath, 'build', 'ast.js'), 'utf-8'
+            join(ctx.extensionPath, 'build', 'ast/ast.js'), 'utf-8'
         );
         const cssUrl = readFileSync(
             join(ctx.extensionPath, 'build', 'style.css'), 'utf-8'
         );
+        const deviceId = useToken(CONNECT_DEVICE_ID)
         panel.webview.html = `<!DOCTYPE html>
         <html lang="en">
         <head>
@@ -38,6 +39,7 @@ export class AstWebView extends VscodeWebView {
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
             <title>${this.title}</title>
             <style>${cssUrl}</style>
+            <script>window.deviceId="${deviceId.get()}"</script>
         </head>
         <body>
             <div id="root"></div>
@@ -46,6 +48,37 @@ export class AstWebView extends VscodeWebView {
         </html>`
     }
     onDidReceiveMessage(msg: any): void {
-        console.log(msg)
+        if (msg) {
+            const data = JSON.parse(msg)
+            const { action, payload } = data;
+            if (action === 'ast') {
+                let code = `selector().className("${payload.className}")`
+                if (payload.clickable) {
+                    code += ".clickable(true)"
+                }
+                if (payload.text) {
+                    code += `.text("${payload.text}")`
+                }
+                if (payload.desc) {
+                    code += `.desc("${payload.desc}")`
+                }
+                if (payload.id) {
+                    code += `.id("${payload.id}")`
+                }
+                code += `.findOne(3000);\n`
+                const editor = window.activeTextEditor
+                if (editor) {
+                    editor.edit(editorBuilder => {
+                        editorBuilder.insert(editor.selection.active, code)
+                    })
+                } else {
+                    env.clipboard.writeText(code)
+                    window.showInformationMessage(`已复制到剪切板`)
+                }
+            }
+            if (action === `error`) {
+                console.log(payload)
+            }
+        }
     }
 }

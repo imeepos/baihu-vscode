@@ -14,6 +14,9 @@ importers:
       react-dom:
         specifier: ^19.0.0
         version: 19.0.0(react@19.0.0)
+      rxjs:
+        specifier: ^7.8.1
+        version: 7.8.1
       ws:
         specifier: ^8.18.0
         version: 8.18.0

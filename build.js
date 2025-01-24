@@ -1,13 +1,29 @@
-
-
-
 const esbuild = require('esbuild');
 const reactPlugin = require('esbuild-plugin-react18');
 const sassPlugin = require(`esbuild-sass-plugin`).default;
 const esbuildPluginPostcss = require('esbuild-plugin-postcss').default;
 
-const build = (path) => esbuild.build({
-    entryPoints: [path], // React应用的入口文件
+const production = process.argv.includes('--production');
+const watch = process.argv.includes('--watch');
+
+
+const esbuildProblemMatcherPlugin = {
+    name: 'esbuild-problem-matcher',
+    setup(build) {
+        build.onStart(() => {
+            console.log('[watch] build started');
+        });
+        build.onEnd((result) => {
+            result.errors.forEach(({ text, location }) => {
+                console.error(`✘ [ERROR] ${text}`);
+                console.error(`    ${location.file}:${location.line}:${location.column}:`);
+            });
+            console.log('[watch] build finished');
+        });
+    },
+};
+
+const sharedConfig = {
     bundle: true,
     outdir: 'build',
     loader: {
@@ -32,19 +48,43 @@ const build = (path) => esbuild.build({
                 require('tailwindcss'),
                 require('autoprefixer'),
             ],
-        })],
+        }),
+        esbuildProblemMatcherPlugin
+    ],
     define: {
         'process.env.NODE_ENV': '"production"',
     },
     minify: true,
-}).catch(() => process.exit(1));
+};
 
+const entryPoints = [
+    'src/pages/docs/docs.tsx',
+    'src/pages/ast/ast.tsx',
+    'src/pages/ocr/ocr.tsx',
+    'src/pages/log/log.tsx',
+    'src/pages/takeScreen/takeScreen.tsx',
+    'src/pages/script/script.tsx',
+    'src/pages/app/app.tsx',
+    'src/pages/test/test.tsx',
+];
 
-build('src/pages/docs/docs.tsx')
-build('src/pages/ast/ast.tsx')
-build('src/pages/ocr/ocr.tsx')
-build('src/pages/log/log.tsx')
-build('src/pages/takeScreen/takeScreen.tsx')
-build('src/pages/script/script.tsx')
-build('src/pages/app/app.tsx')
+const build = async () => {
+    try {
+        const ctx = await esbuild.context({
+            ...sharedConfig,
+            entryPoints,
+        });
+        if (watch) {
+            await ctx.watch({});
+            console.log('Build started with watch mode.');
+        } else {
+            await ctx.rebuild();
+            await ctx.dispose();
+        }
+    } catch (error) {
+        console.error(error);
+        process.exit(1);
+    }
+};
 
+build();

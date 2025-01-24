@@ -11,7 +11,9 @@
   ],
   "activationEvents": [],
   "main": "./dist/extension.js",
-  "enabledApiProposals": ["contribEditorContentMenu"],
+  "enabledApiProposals": [
+    "contribEditorContentMenu"
+  ],
   "contributes": {
     "configuration": {
       "type": "object",
@@ -108,36 +110,38 @@
     "check-types": "tsc --noEmit",
     "lint": "eslint src",
     "test": "vscode-test",
-    "build": "node build.js && pnpm run build:css",
-    "build:css": "tailwindcss -c tailwind.config.js -o build/style.css"
+    "build": "node build.js&& && pnpm run build:css ",
+    "build:css": "tailwindcss -c tailwind.config.js -o build/style.css",
+    "build:js": "node build.js"
   },
   "devDependencies": {
     "@types/mocha": "^10.0.10",
     "@types/node": "20.x",
-    "@types/vscode": "^1.96.0",
     "@types/react": "^19.0.7",
     "@types/react-dom": "^19.0.3",
+    "@types/vscode": "^1.96.0",
     "@types/ws": "^8.5.13",
     "@typescript-eslint/eslint-plugin": "^8.17.0",
     "@typescript-eslint/parser": "^8.17.0",
     "@vscode/test-cli": "^0.0.10",
     "@vscode/test-electron": "^2.4.1",
-    "esbuild": "^0.24.0",
-    "eslint": "^9.16.0",
-    "npm-run-all": "^4.1.5",
-    "typescript": "^5.7.2",
     "autoprefixer": "^10.4.20",
     "axios": "^1.7.9",
+    "esbuild": "^0.24.0",
     "esbuild-plugin-postcss": "^0.2.1",
     "esbuild-plugin-react18": "^0.2.6",
     "esbuild-sass-plugin": "^3.3.1",
     "esbuild-scss-modules-plugin": "^1.1.1",
+    "eslint": "^9.16.0",
+    "npm-run-all": "^4.1.5",
     "sass": "^1.83.4",
-    "tailwindcss": "^3.4.17"
+    "tailwindcss": "^3.4.17",
+    "typescript": "^5.7.2"
   },
   "dependencies": {
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "rxjs": "^7.8.1",
     "ws": "^8.18.0"
   }
 }

@@ -2,8 +2,6 @@ import { ViewColumn, WebviewPanelOptions, WebviewOptions, Uri, WebviewPanel } fr
 import { VSCODE_EXTENSION_CONTEXT, VscodeWebView } from "../vscode";
 import { useInjector } from "../factory";
 import { join } from "path";
-import { useToken } from "../useToken";
-import { CONNECT_DEVICE_ID, DEVICE_ID, Storage } from "../tokens";
 import { readFileSync } from "fs";
 export class OcrWebView extends VscodeWebView {
     get viewType(): string {
