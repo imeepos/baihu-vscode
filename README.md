@@ -1,1 +1,8 @@
-[undefined_publisher.baihu]: editor/content is a proposed menu identifier. It requires 'package.json#enabledApiProposals: ["contribEditorContentMenu"]' and is only available when running out of dev or with the following command line switch: --enable-proposed-api undefined_publisher.baihu
+# 一款autojspro调试工具
+
+1. 远程截图
+2. 远程ast树
+3. 代码分发
+4. 群控管理
+5. 代码调试
+6. 其他工具

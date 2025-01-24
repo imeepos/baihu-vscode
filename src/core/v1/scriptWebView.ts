@@ -25,7 +25,7 @@ export class ScriptWebView extends VscodeWebView {
     async setContent(panel: WebviewPanel) {
         const ctx = useInjector().get(VSCODE_EXTENSION_CONTEXT);
         const jsUrl = readFileSync(
-            join(ctx.extensionPath, 'build', 'script.js'), 'utf-8'
+            join(ctx.extensionPath, 'build', 'script/script.js'), 'utf-8'
         );
         const cssUrl = readFileSync(
             join(ctx.extensionPath, 'build', 'style.css'), 'utf-8'

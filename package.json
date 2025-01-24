@@ -3,6 +3,7 @@
   "displayName": "baihu",
   "description": "baihu tools",
   "version": "0.0.1",
+  "repository": "https://github.com/imeepos/baihu-vscode",
   "engines": {
     "vscode": "^1.96.0"
   },
@@ -11,9 +12,6 @@
   ],
   "activationEvents": [],
   "main": "./dist/extension.js",
-  "enabledApiProposals": [
-    "contribEditorContentMenu"
-  ],
   "contributes": {
     "configuration": {
       "type": "object",
@@ -104,6 +102,7 @@
     "watch:esbuild": "node esbuild.js --watch",
     "watch:tsc": "tsc --noEmit --watch --project tsconfig.json",
     "package": "pnpm run check-types && pnpm run lint && node esbuild.js --production",
+    "vsce": "vsce package",
     "compile-tests": "tsc -p . --outDir out",
     "watch-tests": "tsc -p . -w --outDir out",
     "pretest": "pnpm run compile-tests && pnpm run compile && pnpm run lint",
@@ -125,8 +124,8 @@
     "@typescript-eslint/parser": "^8.17.0",
     "@vscode/test-cli": "^0.0.10",
     "@vscode/test-electron": "^2.4.1",
+    "@vscode/vsce": "^3.2.1",
     "autoprefixer": "^10.4.20",
-    "axios": "^1.7.9",
     "esbuild": "^0.24.0",
     "esbuild-plugin-postcss": "^0.2.1",
     "esbuild-plugin-react18": "^0.2.6",
@@ -134,14 +133,15 @@
     "esbuild-scss-modules-plugin": "^1.1.1",
     "eslint": "^9.16.0",
     "npm-run-all": "^4.1.5",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "rxjs": "^7.8.1",
     "sass": "^1.83.4",
     "tailwindcss": "^3.4.17",
     "typescript": "^5.7.2"
   },
   "dependencies": {
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0",
-    "rxjs": "^7.8.1",
+    "axios": "^1.7.9",
     "ws": "^8.18.0"
   }
 }
